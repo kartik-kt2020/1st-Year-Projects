@@ -1,0 +1,154 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, #e0f2fe, #f8fafc);
+  color: #111827;
+  padding: 50px 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 28px;
+  font-size: 36px;
+  color: #0f172a;
+}
+
+.input-box,
+.undo-btn,
+ul,
+.dsa-note {
+  width: 100%;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.input-box {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+input {
+  flex: 1;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  background: white;
+}
+
+input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+button {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.undo-btn {
+  display: block;
+  margin-bottom: 24px;
+  background: #16a34a;
+}
+
+.undo-btn:hover {
+  background: #15803d;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 16px 18px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.task-text,
+li span {
+  flex: 1;
+  font-size: 17px;
+  color: #111827;
+  cursor: pointer;
+  word-break: break-word;
+}
+
+.completed {
+  color: #6b7280;
+  text-decoration: line-through;
+}
+
+.delete-btn {
+  background: #dc2626;
+  padding: 10px 16px;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+.dsa-note {
+  margin-top: 28px;
+  padding: 16px;
+  background: #eff6ff;
+  border-left: 5px solid #2563eb;
+  border-radius: 8px;
+  color: #1e3a8a;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 30px 14px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+
+  .input-box {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  li {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .delete-btn {
+    width: 100%;
+  }
+}

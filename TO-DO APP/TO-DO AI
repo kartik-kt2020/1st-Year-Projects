@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSA Todo App</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .input-box {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 14px;
+      cursor: pointer;
+      border: none;
+      background: #2563eb;
+      color: white;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: white;
+      margin-bottom: 10px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 4px;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .delete-btn {
+      background: #dc2626;
+    }
+
+    .undo-btn {
+      width: 100%;
+      margin-top: 10px;
+      background: #16a34a;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>DSA Todo App</h1>
+
+  <div class="input-box">
+    <input id="todoInput" type="text" placeholder="Enter a task" />
+    <button onclick="addTodo()">Add</button>
+  </div>
+
+  <button class="undo-btn" onclick="undoDelete()">Undo Delete</button>
+
+  <ul id="todoList"></ul>
+
+  <script>
+    /*
+      =========================
+      DSA PART 1: Node Class
+      =========================
+
+      Each todo is stored as a node.
+      This is the basic building block of a Linked List.
+    */
+    class TodoNode {
+      constructor(id, task) {
+        this.id = id;
+        this.task = task;
+        this.completed = false;
+        this.next = null;
+      }
+    }
+
+    /*
+      ==============================
+      DSA PART 2: Linked List Class
+      ==============================
+
+      We are using a Singly Linked List to store todos.
+      Each node points to the next todo.
+    */
+    class TodoLinkedList {
+      constructor() {
+        this.head = null;
+      }
+
+      /*
+        DSA Concept: Insertion at end of Linked List
+      */
+      add(id, task) {
+        const newNode = new TodoNode(id, task);
+
+        if (this.head === null) {
+          this.head = newNode;
+          return;
+        }
+
+        let current = this.head;
+
+        while (current.next !== null) {
+          current = current.next;
+        }
+
+        current.next = newNode;
+      }
+
+      /*
+        DSA Concept: Searching in Linked List
+      */
+      toggleComplete(id) {
+        let current = this.head;
+
+        while (current !== null) {
+          if (current.id === id) {
+            current.completed = !current.completed;
+            return;
+          }
+
+          current = current.next;
+        }
+      }
+
+      /*
+        DSA Concept: Deletion from Linked List
+      */
+      delete(id) {
+        if (this.head === null) {
+          return null;
+        }
+
+        if (this.head.id === id) {
+          const deletedNode = this.head;
+          this.head = this.head.next;
+          deletedNode.next = null;
+          return deletedNode;
+        }
+
+        let current = this.head;
+
+        while (current.next !== null) {
+          if (current.next.id === id) {
+            const deletedNode = current.next;
+            current.next = current.next.next;
+            deletedNode.next = null;
+            return deletedNode;
+          }
+
+          current = current.next;
+        }
+
+        return null;
+      }
+
+      /*
+        DSA Concept: Traversal of Linked List
+      */
+      getAllTodos() {
+        const todos = [];
+        let current = this.head;
+
+        while (current !== null) {
+          todos.push(current);
+          current = current.next;
+        }
+
+        return todos;
+      }
+    }
+
+    /*
+      =====================================
+      DSA PART 3: Stack for Undo Operation
+      =====================================
+
+      Stack follows LIFO:
+      Last In, First Out.
+
+      When a todo is deleted, we push it into the stack.
+      When undo is clicked, we pop the last deleted todo.
+    */
+    const deletedStack = [];
+
+    const todoList = new TodoLinkedList();
+    let idCounter = 1;
+
+    function addTodo() {
+      const input = document.getElementById("todoInput");
+      const task = input.value.trim();
+
+      if (task === "") {
+        alert("Please enter a task");
+        return;
+      }
+
+      todoList.add(idCounter, task);
+      idCounter++;
+
+      input.value = "";
+      renderTodos();
+    }
+
+    function deleteTodo(id) {
+      const deletedTodo = todoList.delete(id);
+
+      if (deletedTodo !== null) {
+        deletedStack.push(deletedTodo);
+      }
+
+      renderTodos();
+    }
+
+    function undoDelete() {
+      if (deletedStack.length === 0) {
+        alert("Nothing to undo");
+        return;
+      }
+
+      const restoredTodo = deletedStack.pop();
+      todoList.add(restoredTodo.id, restoredTodo.task);
+
+      renderTodos();
+    }
+
+    function toggleTodo(id) {
+      todoList.toggleComplete(id);
+      renderTodos();
+    }
+
+    function renderTodos() {
+      const list = document.getElementById("todoList");
+      list.innerHTML = "";
+
+      const todos = todoList.getAllTodos();
+
+      todos.forEach(function(todo) {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.textContent = todo.task;
+
+        if (todo.completed) {
+          span.classList.add("completed");
+        }
+
+        span.onclick = function() {
+          toggleTodo(todo.id);
+        };
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.className = "delete-btn";
+
+        deleteButton.onclick = function() {
+          deleteTodo(todo.id);
+        };
+
+        li.appendChild(span);
+        li.appendChild(deleteButton);
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
