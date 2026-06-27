@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Clock</title>
+
+  <style>
+    :root {
+      --bg-1: #10151f;
+      --bg-2: #18202d;
+      --panel: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.16);
+      --text: #f8fafc;
+      --muted: #a8b3c7;
+      --accent: #67e8f9;
+      --accent-strong: #22d3ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(103, 232, 249, 0.22), transparent 25rem),
+        radial-gradient(circle at 80% 75%, rgba(248, 113, 113, 0.18), transparent 24rem),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    }
+
+    .clock {
+      width: min(92vw, 760px);
+      padding: clamp(1.5rem, 4vw, 3rem);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(18px);
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .title {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 7.2rem;
+      padding: 0.25rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .toggle button {
+      border: 0;
+      border-radius: 6px;
+      padding: 0.55rem 0;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .toggle button.active {
+      color: #082f49;
+      background: var(--accent);
+    }
+
+    .time {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .digits {
+      font-size: clamp(3.4rem, 13vw, 8.5rem);
+      font-weight: 850;
+      line-height: 0.9;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 28px rgba(103, 232, 249, 0.28);
+    }
+
+    .seconds {
+      color: var(--accent-strong);
+    }
+
+    .period {
+      min-width: 3.2rem;
+      padding-bottom: 0.7rem;
+      color: var(--accent);
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-weight: 850;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-top: 1.7rem;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 650;
+    }
+
+    @media (max-width: 560px) {
+      .top,
+      .time,
+      .meta {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .period {
+        padding-bottom: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="clock">
+    <div class="top">
+      <p class="title">Local Digital Clock</p>
+
+      <div class="toggle">
+        <button id="btn12" class="active">12H</button>
+        <button id="btn24">24H</button>
+      </div>
+    </div>
+
+    <section class="time">
+      <div class="digits">
+        <span id="hours">00</span>:<span id="minutes">00</span><span class="seconds">:</span><span id="seconds" class="seconds">00</span>
+      </div>
+      <div id="period" class="period">AM</div>
+    </section>
+
+    <footer class="meta">
+      <span id="date">Loading date...</span>
+      <span id="timezone">Local time</span>
+    </footer>
+  </main>
+
+  <script>
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+    const periodEl = document.getElementById("period");
+    const dateEl = document.getElementById("date");
+    const timezoneEl = document.getElementById("timezone");
+    const btn12 = document.getElementById("btn12");
+    const btn24 = document.getElementById("btn24");
+
+    let is24Hour = false;
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const rawHours = now.getHours();
+      const displayHours = is24Hour ? rawHours : rawHours % 12 || 12;
+
+      hoursEl.textContent = pad(displayHours);
+      minutesEl.textContent = pad(now.getMinutes());
+      secondsEl.textContent = pad(now.getSeconds());
+      periodEl.textContent = is24Hour ? "" : rawHours >= 12 ? "PM" : "AM";
+
+      dateEl.textContent = new Intl.DateTimeFormat(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      }).format(now);
+
+      timezoneEl.textContent =
+        Intl.DateTimeFormat().resolvedOptions().timeZone || "Local time";
+    }
+
+    function setFormat(use24Hour) {
+      is24Hour = use24Hour;
+      btn12.classList.toggle("active", !is24Hour);
+      btn24.classList.toggle("active", is24Hour);
+      updateClock();
+    }
+
+    btn12.addEventListener("click", () => setFormat(false));
+    btn24.addEventListener("click", () => setFormat(true));
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
